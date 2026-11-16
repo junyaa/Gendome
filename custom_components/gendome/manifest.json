@@ -1,0 +1,13 @@
+﻿{
+  "domain": "gendome",
+  "name": "Gendome",
+  "codeowners": ["@junyaa"],
+  "config_flow": true,
+  "dependencies": ["my"],
+  "documentation": "https://github.com/junyaa/home-assistant-gendome",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/junyaa/home-assistant-gendome/issues",
+  "requirements": [],
+  "version": "1.0.1"
+}

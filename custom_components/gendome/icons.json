@@ -1,0 +1,47 @@
+﻿{
+  "entity": {
+    "sensor": {
+      "remaining_time": {"default": "mdi:timer-sand"},
+      "charge_remaining_time": {"default": "mdi:battery-clock"},
+      "discharge_remaining_time": {"default": "mdi:battery-clock-outline"},
+      "battery_soc": {"default": "mdi:battery"},
+      "input_total_power": {"default": "mdi:transmission-tower-import"},
+      "ac_input_power": {"default": "mdi:power-plug"},
+      "solar_input_power": {"default": "mdi:solar-power"},
+      "wind_input_power": {"default": "mdi:wind-turbine"},
+      "output_total_power": {"default": "mdi:transmission-tower-export"},
+      "ac_output_power": {"default": "mdi:power-socket"},
+      "dc_output_power": {"default": "mdi:current-dc"},
+      "ac_charge_power_setting": {"default": "mdi:tune-variant"},
+      "firmware_version": {"default": "mdi:chip"},
+      "wifi_version": {"default": "mdi:wifi"},
+      "mcu_version": {"default": "mdi:memory"},
+      "last_update": {"default": "mdi:clock-outline"},
+      "battery_temperature": {"default": "mdi:thermometer"},
+      "device_temperature": {"default": "mdi:thermometer-lines"},
+      "error_code": {"default": "mdi:alert-circle-outline"}
+    },
+    "binary_sensor": {
+      "charging": {"default": "mdi:battery-charging"},
+      "discharging": {"default": "mdi:battery-arrow-down"},
+      "ac_input_enabled": {"default": "mdi:transmission-tower-import"},
+      "ac_output_enabled": {"default": "mdi:power-socket"},
+      "dc_output_enabled": {"default": "mdi:current-dc"},
+      "bypass_enabled": {"default": "mdi:transmission-tower"},
+      "ups_mode": {"default": "mdi:power-plug-battery"},
+      "grid_connected": {"default": "mdi:transmission-tower"}
+    },
+    "switch": {
+      "ac_input": {"default": "mdi:transmission-tower-import"},
+      "ac_output": {"default": "mdi:power-socket"},
+      "dc_output": {"default": "mdi:current-dc"},
+      "buzzer": {"default": "mdi:volume-high"},
+      "scheduled_charging": {"default": "mdi:calendar-clock"}
+    },
+    "number": {
+      "ac_charge_power_limit": {"default": "mdi:battery-charging-high"},
+      "battery_protection_lower_soc": {"default": "mdi:battery-arrow-down-outline"},
+      "battery_protection_upper_soc": {"default": "mdi:battery-arrow-up-outline"}
+    }
+  }
+}
