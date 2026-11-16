@@ -224,11 +224,18 @@ async def async_setup_entry(
                 entities.append(_create_sensor(coordinator, device_id, description))
                 continue
             if description.value_fn is not None:
-                if description.value_fn(state) is not None:
+                value = description.value_fn(state)
+                if value is not None and value != "":
                     entities.append(_create_sensor(coordinator, device_id, description))
                 continue
             if description.state_key and description.state_key in state.states:
-                entities.append(_create_sensor(coordinator, device_id, description))
+                entity = _create_sensor(coordinator, device_id, description)
+                if entity.native_value is not None:
+                    entities.append(entity)
+            if description.state_key and description.state_key in state.states:
+                entity = _create_sensor(coordinator, device_id, description)
+                if description.required or entity.native_value is not None:
+                    entities.append(entity)
     async_add_entities(entities)
 
 

@@ -5,16 +5,28 @@ integration itself. This example uses built-in cards and the entities exposed by
 **Gendome (Mod Junya)** (`gendome_mod_junya`) to show energy, power, status, and
 controls.
 
-## How to use
+## Custom card (included)
 
-1. Open **Settings → Dashboards → Add dashboard** (or edit an existing one).
-2. Add a view with **Sections** (or Grid) layout.
-3. Replace every `ENTITY_ID_*` placeholder below with your actual entity IDs from
-   **Developer tools → States** (filter by `gendome_mod_junya` or your device).
-4. Remove cards for entities that are not available on your device (optional
-   sensors/binary sensors are created only when the API reports them).
+This integration now serves a custom Lovelace card:
+`custom:gendome-mod-junya-card` ("Gendome (Mod Junya) Energy Console").
 
-## Example (YAML)
+It auto-registers a module resource at `/gendome_mod_junya/gendome-energy-card.js`
+on setup when Lovelace resources are available. If it does not appear:
+
+1. Go to **Settings → Dashboards → Resources → Add resource**.
+2. URL: `/gendome_mod_junya/gendome-energy-card.js`, type **JavaScript module**.
+3. Hard-refresh the browser/app.
+
+Example:
+
+```yaml
+type: custom:gendome-mod-junya-card
+title: Energy Console
+# Optional: device_id auto-detects entities for a Gendome (Mod Junya) device
+# device_id: YOUR_DEVICE_ID
+```
+
+## Built-in cards example (YAML)
 
 ```yaml
 title: Gendome

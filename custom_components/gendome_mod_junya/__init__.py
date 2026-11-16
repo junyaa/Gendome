@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from .const import (
+    CARD_JS_URL,
+    CARD_STATIC_PATH,
     CONF_API_BASE_URL,
     CONF_ENVIRONMENT,
     DEFAULT_API_BASE_URL,
@@ -67,11 +69,50 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
 
     entry.runtime_data = GendomeRuntimeData(api=api, coordinator=coordinator)
+    await _async_register_frontend(hass)
     _async_remove_legacy_refresh_buttons(hass, entry)
     if hasattr(entry, "async_on_unload") and hasattr(entry, "add_update_listener"):
         entry.async_on_unload(entry.add_update_listener(_async_update_options))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
+
+
+async def _async_register_frontend(hass: HomeAssistant) -> None:
+    """Register the Lovelace custom card for this integration."""
+    if hass.data.setdefault(DOMAIN, {}).get("_frontend_registered"):
+        return
+
+    from pathlib import Path
+
+    frontend_dir = str(Path(__file__).parent / "frontend")
+    try:
+        from homeassistant.components.http import StaticPathConfig
+
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(CARD_STATIC_PATH, frontend_dir, cache_headers=False)]
+        )
+    except Exception:
+        try:
+            hass.http.register_static_path(CARD_STATIC_PATH, frontend_dir, False)
+        except Exception:
+            _LOGGER.debug("Unable to register Gendome frontend static path", exc_info=True)
+            return
+
+    hass.data[DOMAIN]["_frontend_registered"] = True
+
+    lovelace = hass.data.get("lovelace")
+    resources = getattr(lovelace, "resources", None) if lovelace else None
+    if resources is None:
+        return
+    try:
+        if not getattr(resources, "loaded", True):
+            await resources.async_load()
+        for item in resources.async_items() or []:
+            if item.get("url") == CARD_JS_URL:
+                return
+        await resources.async_create_item({"res_type": "module", "url": CARD_JS_URL})
+    except Exception:
+        _LOGGER.debug("Unable to auto-register Gendome Lovelace resource", exc_info=True)
 
 
 async def _async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
