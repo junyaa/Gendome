@@ -1,28 +1,36 @@
 # Changelog
 
-## Unreleased
+All notable changes to this **mod/fork** are documented here.
+Upstream project: [gendome/home-assistant](https://github.com/gendome/home-assistant). MIT License preserved.
 
-- Improved Home Assistant UI representation:
-  - Remaining time sensor now uses duration device class with numeric minute values and localized display text in attributes.
-  - Added diagnostic sensors for firmware, Wi-Fi, MCU versions, last update timestamp, and error code when available.
-  - Added optional temperature sensors (battery/device) when reported by the device.
-  - Online binary sensor now uses connectivity device class.
-  - Added optional output-state binary sensors (AC/DC output) when reported by the device.
-  - Expanded and standardized entity icons.
-  - Power and battery sensors now report measurement state with integer display precision.
-  - AC/DC output and control switches now expose appropriate switch device classes.
-  - Scheduled charging switch is created only when schedule data is available and exposes cached schedule attributes.
-  - Wind input power sensor is disabled by default to reduce clutter when unsupported.
-  - Configuration controls (charge limit, battery protection, input/buzzer/schedule toggles) are categorized as config entities.
-- Diagnostics and troubleshooting for brief power events:
-  - Added integration options for polling interval and transient state event logging.
-  - Diagnostics export now includes options, effective poll interval, and recent redacted state-change events per device (when enabled).
-  - Event log tracks additional keys relevant to grid/bypass behavior when reported (`acInputEnabled`, `acChargePowerSetting`, battery protection bounds, `bypassEnabled`, `upsMode`, `gridConnected`, `workMode`).
-  - Added optional binary sensors for AC input enabled, bypass mode, UPS mode, and grid-connected state when the API reports them.
-- Documentation and maintenance:
-  - Updated README/troubleshooting/OpenAPI notes for fork and current entity behavior.
-  - Cleaned mojibake/encoding issues in integration modules, docs, translations, and tests (logic unchanged).
-  - MIT License preserved (`LICENSE` unchanged).
+## 1.1.0-mod (2026-11-16)
+
+### Added
+- Integration options: configurable polling interval (10–300 s, default 60 s) and transient state event logging.
+- Diagnostics export: effective options, poll interval, and recent redacted per-device state changes (`recent_state_changes`, timestamps, changed `raw_keys`) to help investigate brief grid/power transitions.
+- Event log tracking for grid/bypass-related keys when reported: `acInputEnabled`, `acChargePowerSetting`, battery protection bounds, `bypassEnabled`, `upsMode`, `gridConnected`, `workMode` (plus existing power/charging/SOC/error/temperature keys).
+- Optional read-only binary sensors when reported by API: AC input enabled, AC output state, DC output state, bypass mode, UPS mode, grid-connected.
+- Diagnostic sensors when available: firmware version, Wi-Fi version, MCU version, last update timestamp, error code.
+- Optional sensors when available: battery temperature, device temperature.
+- Scheduled charging switch exposes cached schedule attributes when schedule data is available.
+
+### Changed
+- Remaining time sensor: duration device class, numeric minute value, measurement state, localized display text in attributes.
+- Online binary sensor: connectivity device class.
+- Power and battery sensors: measurement state and integer display precision where appropriate.
+- Switches: appropriate device classes; config categories for relevant toggles; scheduled charging entity created only when schedule data exists.
+- Wind input power sensor: disabled by default.
+- Entity icons expanded/standardized; config/diagnostic entity categories applied.
+
+### Fixed / maintenance
+- Cleaned mojibake/encoding issues in integration modules, docs, translations, and tests (no intended behavior changes).
+
+### Documentation
+- README, troubleshooting, and OpenAPI contract notes updated for fork/mod status, current entities, diagnostics/options, and limitations (including brief 1–2 s events and bypass/grid visibility).
+
+### Safety / notes
+- No new device write commands added. Existing control validation, command result polling, and offline availability safeguards remain in place.
+- Optional entities appear only when corresponding state keys are provided by the cloud API. Short events may be missed if not reported between polls.
 
 ## 1.0.1 - 2026-11-10
 
