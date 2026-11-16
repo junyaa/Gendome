@@ -39,7 +39,7 @@ def test_manifest_requires_my_for_a_fixed_https_callback() -> None:
     manifest_path = (
         Path(__file__).parents[1]
         / "custom_components"
-        / "gendome"
+        / "gendome_mod_junya"
         / "manifest.json"
     )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

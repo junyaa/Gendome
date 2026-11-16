@@ -82,7 +82,7 @@ def test_retired_refresh_buttons_removed_only_from_current_entry(
     legacy = [
         SimpleNamespace(
             domain="button",
-            platform="gendome",
+            platform="gendome_mod_junya",
             unique_id=f"mac{index}_refresh_state",
             entity_id=f"button.user_renamed_{index}",
         )
@@ -94,8 +94,8 @@ def test_retired_refresh_buttons_removed_only_from_current_entry(
             entity_id=entity_id,
         )
         for domain, platform, unique_id, entity_id in (
-            ("switch", "gendome", "mac_ac_output", "switch.ac_output"),
-            ("button", "gendome", "mac_identify", "button.identify"),
+            ("switch", "gendome_mod_junya", "mac_ac_output", "switch.ac_output"),
+            ("button", "gendome_mod_junya", "mac_identify", "button.identify"),
             ("button", "other", "mac_refresh_state", "button.other"),
         )
     ]
