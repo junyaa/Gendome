@@ -1,5 +1,6 @@
 const CARD_TAG = "gendome-mod-junya-card";
 const EDITOR_TAG = "gendome-mod-junya-card-editor";
+const CARD_VERSION = "2026-11-17.1";
 
 const mdi = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
 const ICONS = {
