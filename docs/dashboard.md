@@ -7,15 +7,17 @@ controls.
 
 ## Custom card (included)
 
-This integration now serves a custom Lovelace card:
+This integration serves a custom Lovelace card:
 `custom:gendome-mod-junya-card` ("Gendome (Mod Junya) Energy Console").
 
-It auto-registers a module resource at `/gendome_mod_junya/gendome-energy-card.js`
-on setup when Lovelace resources are available. If it does not appear:
+After deploying and restarting Home Assistant, add it as a Lovelace resource:
 
 1. Go to **Settings → Dashboards → Resources → Add resource**.
 2. URL: `/gendome_mod_junya/gendome-energy-card.js`, type **JavaScript module**.
 3. Hard-refresh the browser/app.
+
+Do not add the resource until the JS URL loads successfully in your browser;
+a broken resource can prevent dashboards from loading.
 
 Example:
 
