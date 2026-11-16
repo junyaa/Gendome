@@ -4,8 +4,8 @@ from typing import Any
 
 import pytest
 
-from custom_components.gendome import api as api_module
-from custom_components.gendome.api import (
+from custom_components.gendome_mod_junya import api as api_module
+from custom_components.gendome_mod_junya.api import (
     GendomeApiClient,
     GendomeAuthError,
     GendomePermissionError,

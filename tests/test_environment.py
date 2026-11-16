@@ -1,6 +1,6 @@
 """Tests for the fixed production endpoints and requested permissions."""
 
-from custom_components.gendome.const import (
+from custom_components.gendome_mod_junya.const import (
     DEFAULT_API_BASE_URL,
     DEFAULT_OAUTH_BASE_URL,
     ENVIRONMENT,

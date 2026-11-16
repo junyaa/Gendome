@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from custom_components.gendome import async_setup_entry
-from custom_components.gendome.const import (
+from custom_components.gendome_mod_junya import async_setup_entry
+from custom_components.gendome_mod_junya.const import (
     DEFAULT_API_BASE_URL,
     PLATFORMS,
     PUBLIC_OAUTH_IMPLEMENTATION,
@@ -25,8 +25,8 @@ async def test_public_oauth_entry_loads_devices_and_platforms(monkeypatch) -> No
     api_instance = object()
     api_factory = Mock(return_value=api_instance)
 
-    import custom_components.gendome.api as api_module
-    import custom_components.gendome.coordinator as coordinator_module
+    import custom_components.gendome_mod_junya.api as api_module
+    import custom_components.gendome_mod_junya.coordinator as coordinator_module
 
     monkeypatch.setattr(api_module, "GendomeApiClient", api_factory)
     monkeypatch.setattr(
@@ -35,7 +35,7 @@ async def test_public_oauth_entry_loads_devices_and_platforms(monkeypatch) -> No
 
     remove_buttons = Mock()
     monkeypatch.setattr(
-        "custom_components.gendome._async_remove_legacy_refresh_buttons",
+        "custom_components.gendome_mod_junya._async_remove_legacy_refresh_buttons",
         remove_buttons,
     )
 
@@ -77,7 +77,7 @@ def test_retired_refresh_buttons_removed_only_from_current_entry(
     """Remove old buttons safely, preserving other entities and user renames."""
     from homeassistant.helpers import entity_registry as er
 
-    from custom_components.gendome import _async_remove_legacy_refresh_buttons
+    from custom_components.gendome_mod_junya import _async_remove_legacy_refresh_buttons
 
     legacy = [
         SimpleNamespace(

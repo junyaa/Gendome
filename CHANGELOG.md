@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to this **mod/fork** are documented here.
+All notable changes to **Gendome (Mod Junya)** (`gendome_mod_junya`) are documented here. This mod can coexist with the original `gendome` integration.
 Upstream project: [gendome/home-assistant](https://github.com/gendome/home-assistant). MIT License preserved.
 
 ## 1.1.0-mod (2026-11-16)

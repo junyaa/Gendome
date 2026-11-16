@@ -1,10 +1,10 @@
 """Tests for localized remaining-time sensor formatting."""
 
-from custom_components.gendome.duration import (
+from custom_components.gendome_mod_junya.duration import (
     format_duration_minutes,
     remaining_time_name,
 )
-from custom_components.gendome.sensor import SENSORS
+from custom_components.gendome_mod_junya.sensor import SENSORS
 
 
 def test_formats_simplified_chinese_duration() -> None:

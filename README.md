@@ -1,6 +1,6 @@
-﻿# Gendome for Home Assistant (Mod)
+# Gendome (Mod Junya) for Home Assistant
 
-> **Unofficial mod/fork.** This repository is a community-modified fork of the upstream
+> **Unofficial mod/fork.** This repository (Gendome Mod Junya) is a community-modified fork of the upstream
 > [gendome/home-assistant](https://github.com/gendome/home-assistant) integration.
 > It is **not affiliated with or endorsed by Gendome**. All original copyright
 > and the [MIT License](LICENSE) are preserved.
@@ -12,10 +12,10 @@ services and uses browser-based OAuth2 account linking.
 
 ## Mod information
 
-- **Fork/mod repository:** [junyaa/Gendome](https://github.com/junyaa/Gendome)
+- **Fork/mod repository:** [junyaa/Gendome](https://github.com/junyaa/Gendome) (`custom_components/gendome_mod_junya`, domain `gendome_mod_junya`)(https://github.com/junyaa/Gendome)
 - **Upstream:** [gendome/home-assistant](https://github.com/gendome/home-assistant)
 - **Based on:** upstream 1.0.x integration
-- **Mod version:** 1.1.0 (see [CHANGELOG.md](CHANGELOG.md))
+- **Mod version:** 1.1.0 (domain `gendome_mod_junya`, can coexist with original `gendome`) (see [CHANGELOG.md](CHANGELOG.md))
 
 ### Added
 - Configurable polling interval (10–300 s, default 60 s) and optional transient state event log (Options flow).

@@ -88,7 +88,7 @@ def _async_remove_legacy_refresh_buttons(
     for entity in er.async_entries_for_config_entry(registry, entry.entry_id):
         if (
             entity.domain == "button"
-            and entity.platform == "gendome"
+            and entity.platform == DOMAIN
             and entity.unique_id.endswith("_refresh_state")
         ):
             registry.async_remove(entity.entity_id)
