@@ -95,7 +95,10 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
         try:
             hass.http.register_static_path(CARD_STATIC_PATH, frontend_dir, False)
         except Exception:
-            _LOGGER.debug("Unable to register Gendome frontend static path", exc_info=True)
+            _LOGGER.debug(
+                "Unable to register Gendome frontend static path",
+                exc_info=True,
+            )
             return
 
     hass.data[DOMAIN]["_frontend_registered"] = True
@@ -112,7 +115,10 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
                 return
         await resources.async_create_item({"res_type": "module", "url": CARD_JS_URL})
     except Exception:
-        _LOGGER.debug("Unable to auto-register Gendome Lovelace resource", exc_info=True)
+        _LOGGER.debug(
+            "Unable to auto-register Gendome Lovelace resource",
+            exc_info=True,
+        )
 
 
 async def _async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
