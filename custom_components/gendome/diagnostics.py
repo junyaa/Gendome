@@ -54,9 +54,10 @@ async def async_get_config_entry_diagnostics(
             )
         )
     last_error = runtime.api.last_error
+    update_interval = getattr(coordinator, "update_interval", None)
     return {
         "config_entry": _redact(dict(entry.data)),
-        "options": dict(entry.options),
+        "options": dict(getattr(entry, "options", {}) or {}),
         "profile": _redact(
             {
                 "user_id": coordinator.data.profile.user_id,
@@ -67,10 +68,10 @@ async def async_get_config_entry_diagnostics(
             }
         ),
         "last_update_success": coordinator.last_update_success,
-        "update_interval_seconds": int(coordinator.update_interval.total_seconds())
-        if coordinator.update_interval
+        "update_interval_seconds": int(update_interval.total_seconds())
+        if update_interval
         else None,
-        "event_log_enabled": coordinator.event_log_enabled,
+        "event_log_enabled": bool(getattr(coordinator, "event_log_enabled", True)),
         "last_error": {"code": last_error.get("code")} if last_error else None,
         "devices": devices,
     }
