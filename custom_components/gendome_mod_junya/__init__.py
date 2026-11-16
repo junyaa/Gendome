@@ -1,4 +1,4 @@
-﻿"""The Gendome Home Assistant integration."""
+"""The Gendome Home Assistant integration."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from .const import (
     CONF_API_BASE_URL,
     CONF_ENVIRONMENT,
     DEFAULT_API_BASE_URL,
+    DOMAIN,
     ENVIRONMENT,
     PLATFORMS,
     REVOKE_URL,
@@ -67,7 +68,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.runtime_data = GendomeRuntimeData(api=api, coordinator=coordinator)
     _async_remove_legacy_refresh_buttons(hass, entry)
-    entry.async_on_unload(entry.add_update_listener(_async_update_options))
+    if hasattr(entry, "async_on_unload") and hasattr(entry, "add_update_listener"):
+        entry.async_on_unload(entry.add_update_listener(_async_update_options))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
@@ -87,7 +89,7 @@ def _async_remove_legacy_refresh_buttons(
     for entity in er.async_entries_for_config_entry(registry, entry.entry_id):
         if (
             entity.domain == "button"
-            and entity.platform == "gendome"
+            and entity.platform == DOMAIN
             and entity.unique_id.endswith("_refresh_state")
         ):
             registry.async_remove(entity.entity_id)

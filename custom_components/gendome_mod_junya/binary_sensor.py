@@ -1,4 +1,4 @@
-﻿"""Binary sensor entities for Gendome devices."""
+"""Binary sensor entities for Gendome devices."""
 
 from __future__ import annotations
 

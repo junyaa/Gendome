@@ -1,6 +1,6 @@
 """Tests for API response models."""
 
-from custom_components.gendome.models import (
+from custom_components.gendome_mod_junya.models import (
     GendomeDevice,
     GendomeDeviceState,
     GendomeProfile,

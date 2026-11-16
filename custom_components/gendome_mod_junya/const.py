@@ -1,12 +1,12 @@
-﻿"""Constants for the Gendome integration."""
+"""Constants for the Gendome integration."""
 
 from __future__ import annotations
 
 from datetime import timedelta
 from typing import Final
 
-DOMAIN: Final = "gendome"
-NAME: Final = "Gendome"
+DOMAIN: Final = "gendome_mod_junya"
+NAME: Final = "Gendome (Mod Junya)"
 MANUFACTURER: Final = "Gendome"
 
 PRODUCT_KEY_GO_1000: Final = "woibp7yhn3w9qqr2"

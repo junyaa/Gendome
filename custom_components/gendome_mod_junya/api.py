@@ -1,4 +1,4 @@
-﻿"""Async OpenAPI client for the Gendome Home Assistant integration."""
+"""Async OpenAPI client for the Gendome Home Assistant integration."""
 
 from __future__ import annotations
 

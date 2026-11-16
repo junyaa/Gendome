@@ -13,14 +13,14 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 from homeassistant.data_entry_flow import FlowResultType
 
-from custom_components.gendome import config_flow as config_flow_module
-from custom_components.gendome.config_flow import GendomeConfigFlow
-from custom_components.gendome.const import (
+from custom_components.gendome_mod_junya import config_flow as config_flow_module
+from custom_components.gendome_mod_junya.config_flow import GendomeConfigFlow
+from custom_components.gendome_mod_junya.const import (
     OAUTH_SCOPE,
     PUBLIC_OAUTH_CLIENT_ID,
     PUBLIC_OAUTH_IMPLEMENTATION,
 )
-from custom_components.gendome.oauth import (
+from custom_components.gendome_mod_junya.oauth import (
     GendomePublicOAuth2Implementation,
     async_get_entry_oauth2_implementation,
 )
@@ -39,7 +39,7 @@ def test_manifest_requires_my_for_a_fixed_https_callback() -> None:
     manifest_path = (
         Path(__file__).parents[1]
         / "custom_components"
-        / "gendome"
+        / "gendome_mod_junya"
         / "manifest.json"
     )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

@@ -1,4 +1,4 @@
-﻿"""Cloud API data models for Gendome."""
+"""Cloud API data models for Gendome."""
 
 from __future__ import annotations
 

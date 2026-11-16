@@ -1,4 +1,4 @@
-﻿"""Localized formatting for device-reported durations."""
+"""Localized formatting for device-reported durations."""
 
 from __future__ import annotations
 

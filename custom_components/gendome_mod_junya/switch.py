@@ -1,4 +1,4 @@
-﻿"""Switch entities for Gendome device controls."""
+"""Switch entities for Gendome device controls."""
 
 from __future__ import annotations
 
