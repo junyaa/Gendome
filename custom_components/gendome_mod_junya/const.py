@@ -34,6 +34,9 @@ OPENAPI_PREFIX: Final = "/aiot-devicecenter/openapi/home-assistant"
 PUBLIC_OAUTH_CLIENT_ID: Final = "gendome_home_assistant"
 PUBLIC_OAUTH_IMPLEMENTATION: Final = "gendome_public_pkce"
 
+CARD_STATIC_PATH: Final = "/gendome_mod_junya"
+CARD_JS_URL: Final = f"{CARD_STATIC_PATH}/gendome-energy-card.js"
+
 CONF_API_BASE_URL: Final = "api_base_url"
 CONF_ENVIRONMENT: Final = "environment"
 CONF_REGION: Final = "region"
