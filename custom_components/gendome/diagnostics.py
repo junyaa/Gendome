@@ -1,4 +1,4 @@
-﻿"""Diagnostics support for the Gendome integration."""
+"""Diagnostics support for the Gendome integration."""
 
 from __future__ import annotations
 

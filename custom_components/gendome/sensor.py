@@ -1,4 +1,4 @@
-﻿"""Sensor entities for Gendome energy devices."""
+"""Sensor entities for Gendome energy devices."""
 
 from __future__ import annotations
 
@@ -15,8 +15,8 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    EntityCategory,
     PERCENTAGE,
+    EntityCategory,
     UnitOfPower,
     UnitOfTemperature,
     UnitOfTime,

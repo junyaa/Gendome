@@ -1,4 +1,4 @@
-﻿"""Coordinator for Gendome device data."""
+"""Coordinator for Gendome device data."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-﻿"""OAuth2 config flow for Gendome."""
+"""OAuth2 config flow for Gendome."""
 
 from __future__ import annotations
 

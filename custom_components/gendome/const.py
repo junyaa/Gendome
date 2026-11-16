@@ -1,4 +1,4 @@
-﻿"""Constants for the Gendome integration."""
+"""Constants for the Gendome integration."""
 
 from __future__ import annotations
 

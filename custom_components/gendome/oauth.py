@@ -1,4 +1,4 @@
-﻿"""OAuth implementations used by the Gendome integration."""
+"""OAuth implementations used by the Gendome integration."""
 
 from __future__ import annotations
 

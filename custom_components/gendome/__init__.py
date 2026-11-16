@@ -1,4 +1,4 @@
-﻿"""The Gendome Home Assistant integration."""
+"""The Gendome Home Assistant integration."""
 
 from __future__ import annotations
 
