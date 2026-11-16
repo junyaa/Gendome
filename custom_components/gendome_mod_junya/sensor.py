@@ -260,9 +260,18 @@ class GendomeSensor(GendomeEntity, SensorEntity):
             value = self.entity_description.value_fn(state)
             if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP:
                 if isinstance(value, str):
-                    return dt_util.parse_datetime(value)
+                    parsed = dt_util.parse_datetime(value)
+                    if parsed is None:
+                        parsed = dt_util.parse_datetime(value.replace(" ", "T"))
+                    if parsed is not None and parsed.tzinfo is None:
+                        parsed = dt_util.as_utc(parsed)
+                    return parsed
                 if isinstance(value, datetime):
-                    return value
+                    return (
+                        dt_util.as_utc(value)
+                        if value.tzinfo is None
+                        else value
+                    )
             return value
         if self.entity_description.state_key is None:
             return None
