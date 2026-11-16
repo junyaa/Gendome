@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from collections import deque
 from dataclasses import replace
 from datetime import timedelta
@@ -11,7 +12,7 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
@@ -26,6 +27,7 @@ from .api import (
     GendomeRateLimitError,
 )
 from .const import (
+    COMMAND_COOLDOWN_SECONDS,
     CONF_ENABLE_EVENT_LOG,
     CONF_SCAN_INTERVAL,
     DEFAULT_ENABLE_EVENT_LOG,
@@ -88,6 +90,22 @@ class GendomeDataUpdateCoordinator(DataUpdateCoordinator[GendomeCoordinatorData]
         self._schedules: dict[str, dict[str, Any]] = {}
         self._event_logs: dict[str, deque[dict[str, Any]]] = {}
         self._last_snapshots: dict[str, dict[str, Any]] = {}
+        self._command_cooldowns: dict[str, float] = {}
+
+    def enforce_command_cooldown(self, device_id: str) -> None:
+        """Prevent rapid repeated commands that the cloud rejects."""
+        until = self._command_cooldowns.get(device_id, 0.0)
+        if time.monotonic() < until:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="command_cooldown",
+            )
+
+    def note_command_sent(self, device_id: str) -> None:
+        """Record when a command was sent to apply a short cooldown."""
+        self._command_cooldowns[device_id] = (
+            time.monotonic() + COMMAND_COOLDOWN_SECONDS
+        )
 
     @property
     def event_log_enabled(self) -> bool:

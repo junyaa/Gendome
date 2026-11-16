@@ -111,6 +111,7 @@ class GendomeSwitch(GendomeEntity, SwitchEntity):
         await self._async_set_enabled(False)
 
     async def _async_set_enabled(self, enabled: bool) -> None:
+        self.coordinator.enforce_command_cooldown(self._device_id)
         try:
             await self.coordinator.api.async_send_and_wait(
                 self._device_id,
@@ -119,6 +120,7 @@ class GendomeSwitch(GendomeEntity, SwitchEntity):
             )
         except GendomeApiError as err:
             raise _control_error(err) from err
+        self.coordinator.note_command_sent(self._device_id)
         await self.coordinator.async_request_refresh()
 
 
@@ -182,12 +184,14 @@ class GendomeScheduledChargingSwitch(GendomeEntity, SwitchEntity):
         await self._async_set_enabled(False)
 
     async def _async_set_enabled(self, enabled: bool) -> None:
+        self.coordinator.enforce_command_cooldown(self._device_id)
         try:
             schedule = await self.coordinator.api.async_set_charging_schedule_enabled(
                 self._device_id, enabled
             )
         except GendomeApiError as err:
             raise _control_error(err) from err
+        self.coordinator.note_command_sent(self._device_id)
         self.coordinator.async_set_schedule(self._device_id, dict(schedule))
         state = self.device_state
         if state is not None and state.device.product_key in BEIYITONG_PRODUCT_KEYS:
