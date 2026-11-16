@@ -1,7 +1,7 @@
 """Validate GO number controls before sending a command."""
 
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 from homeassistant.exceptions import HomeAssistantError
@@ -36,6 +36,8 @@ def make_entity(key, product_key=PRODUCT_KEY_GO_1000):
         last_update_success=True,
         api=SimpleNamespace(async_send_and_wait=AsyncMock()),
         async_request_refresh=AsyncMock(),
+        enforce_command_cooldown=Mock(),
+        note_command_sent=Mock(),
     )
     description = next(item for item in NUMBERS if item.key == key)
     return GendomeNumber(coordinator, "device", description)
