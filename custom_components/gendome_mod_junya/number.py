@@ -149,6 +149,7 @@ class GendomeNumber(GendomeEntity, NumberEntity):
                     "max": str(self.native_max_value),
                 },
             )
+        self.coordinator.enforce_command_cooldown(self._device_id)
         integer_value = int(value)
         if self.entity_description.command == COMMAND_SET_AC_CHARGE_POWER:
             payload = {"power": integer_value}
@@ -164,6 +165,7 @@ class GendomeNumber(GendomeEntity, NumberEntity):
                 translation_key="command_failed",
                 translation_placeholders={"message": str(err)},
             ) from err
+        self.coordinator.note_command_sent(self._device_id)
         await self.coordinator.async_request_refresh()
 
     def _battery_range_payload(self, value: int) -> dict[str, int]:

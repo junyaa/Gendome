@@ -84,24 +84,43 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
 
     from pathlib import Path
 
-    frontend_dir = str(Path(__file__).parent / "frontend")
+    frontend_dir = Path(__file__).parent / "frontend"
+    js_path = frontend_dir / "gendome-energy-card.js"
+    if not js_path.is_file():
+        _LOGGER.warning(
+            "Gendome frontend card not found at %s; custom card will be unavailable",
+            js_path,
+        )
+        return
+
+    registered = False
     try:
         from homeassistant.components.http import StaticPathConfig
 
         await hass.http.async_register_static_paths(
-            [StaticPathConfig(CARD_STATIC_PATH, frontend_dir, cache_headers=False)]
+            [StaticPathConfig(CARD_STATIC_PATH, str(frontend_dir), False)]
         )
+        registered = True
     except Exception:
+        _LOGGER.debug("async_register_static_paths failed", exc_info=True)
+    if not registered:
         try:
-            hass.http.register_static_path(CARD_STATIC_PATH, frontend_dir, False)
+            hass.http.register_static_path(CARD_STATIC_PATH, str(frontend_dir), False)
+            registered = True
         except Exception:
-            _LOGGER.debug(
-                "Unable to register Gendome frontend static path",
+            _LOGGER.warning(
+                "Unable to register Gendome frontend static path at %s",
+                CARD_STATIC_PATH,
                 exc_info=True,
             )
             return
 
     hass.data[DOMAIN]["_frontend_registered"] = True
+    _LOGGER.debug(
+        "Registered Gendome frontend at %s -> %s",
+        CARD_STATIC_PATH,
+        frontend_dir,
+    )
 
     lovelace = hass.data.get("lovelace")
     resources = getattr(lovelace, "resources", None) if lovelace else None
