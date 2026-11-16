@@ -1,43 +1,48 @@
 # Gendome (Mod Junya) for Home Assistant
 
-> **Unofficial mod/fork.** This repository (Gendome Mod Junya) is a community-modified fork of the upstream
+> **Unofficial mod/fork.** This repository is a community-modified fork of the upstream
 > [gendome/home-assistant](https://github.com/gendome/home-assistant) integration.
-> It is **not affiliated with or endorsed by Gendome**. All original copyright
-> and the [MIT License](LICENSE) are preserved.
+> It is **not affiliated with or endorsed by Gendome**. Original copyright and
+> the [MIT License](LICENSE) are preserved.
 
-Connect supported Gendome Home and Go series energy devices to Home
-Assistant. Monitor device status and power, control supported functions, and
-use your devices in automations. The integration connects to Gendome cloud
-services and uses browser-based OAuth2 account linking.
+This mod (`custom_components/gendome_mod_junya`, domain `gendome_mod_junya`) can
+be installed alongside the original `gendome` integration as a separate
+integration in Home Assistant.
 
-## Mod information
+## What changed vs upstream
 
-- **Fork/mod repository:** [junyaa/Gendome](https://github.com/junyaa/Gendome) (`custom_components/gendome_mod_junya`, domain `gendome_mod_junya`)(https://github.com/junyaa/Gendome)
-- **Upstream:** [gendome/home-assistant](https://github.com/gendome/home-assistant)
-- **Based on:** upstream 1.0.x integration
-- **Mod version:** 1.1.0 (domain `gendome_mod_junya`, can coexist with original `gendome`) (see [CHANGELOG.md](CHANGELOG.md))
+Compared to upstream
+[gendome/home-assistant](https://github.com/gendome/home-assistant) (1.0.x):
+
+### Identity and coexistence
+- Separate integration domain/folder: `gendome_mod_junya` / **Gendome (Mod Junya)** (does not replace or migrate the original `gendome` integration).
+- Fork metadata, docs, and mod branding updated; manifest/loggers/version aligned to this mod.
 
 ### Added
-- Configurable polling interval (10–300 s, default 60 s) and optional transient state event log (Options flow).
-- Diagnostics export of effective options, poll interval, and recent redacted per-device state changes (`recent_state_changes`, timestamps, `raw_keys`) for investigating brief power/grid events.
-- Optional read-only binary sensors when reported by API: AC input enabled, AC output state, DC output state, bypass mode, UPS mode, grid-connected.
-- Diagnostic sensors when available: firmware, Wi-Fi, MCU versions, last update timestamp, error code.
-- Optional sensors when available: battery temperature, device temperature.
-- Scheduled charging switch exposes cached schedule attributes when available.
+- **Options flow:** configurable polling interval (10–300 s, default 60 s) and optional transient state event logging.
+- **Diagnostics for brief power events:** diagnostics export includes options, effective poll interval, and recent redacted per-device state changes (`recent_state_changes` with timestamps and `raw_keys`) when event logging is enabled.
+- **Extra tracked transition keys (when reported):** `acInputEnabled`, `acChargePowerSetting`, battery protection bounds, `bypassEnabled`, `upsMode`, `gridConnected`, `workMode`, plus power/charging/SOC/error/temperature keys.
+- **Optional read-only binary sensors (only if API reports keys):** AC input enabled, AC output state, DC output state, bypass mode, UPS mode, grid-connected.
+- **Diagnostic sensors (when available):** firmware version, Wi-Fi version, MCU version, last update timestamp, error code.
+- **Optional sensors (when available):** battery temperature, device temperature.
+- **Scheduled charging:** entity is created only when schedule data is available and exposes cached schedule attributes.
+- **Dashboard example:** [`docs/dashboard.md`](docs/dashboard.md) with a ready-to-adapt Lovelace layout for energy/power/status views.
 
 ### Changed / improved
-- Remaining time sensor uses duration device class (numeric minutes) with localized display text in attributes.
-- Online binary sensor uses connectivity device class; power/battery sensors use measurement state and integer display precision where appropriate.
-- Expanded/standardized entity icons; config/diagnostic entity categories applied to relevant controls and diagnostics.
-- Switches expose appropriate device classes; scheduled charging entity created only when schedule data is available.
-- Wind input power sensor disabled by default to reduce clutter.
-- README, troubleshooting, and OpenAPI notes updated for fork and current behavior.
-- Encoding/mojibake cleanup in modules, docs, translations, and tests (no behavior changes).
+- **UI/graph metadata:** remaining time uses duration device class (numeric minutes) with localized display text in attributes; online sensor uses connectivity device class; power/battery/temperature sensors use measurement state and display precision where appropriate for history/statistics.
+- **Icons:** expanded and state/range-aware icon mappings (`icons.json`) for battery level, connectivity/charging/discharging states, input/output/bypass/UPS/grid, and controls.
+- **Entity categories/classes:** config and diagnostic categories applied where relevant; switch device classes refined.
+- **Wind input power:** disabled by default to reduce clutter on devices without wind input.
+- **Maintenance:** encoding/mojibake cleanup in modules, docs, translations, and tests; packaging/CI fixes for hassfest/HACS/ruff/pytest compatibility.
+
+### Not changed (vs upstream behavior)
+- **No new device write commands.** Existing controls keep validation, non-optimistic command handling, and offline-availability safeguards.
+- Cloud OAuth/device control flow and supported write operations remain the same in scope.
 
 ### Safety and limitations
-- **No new device commands added.** Existing controls keep validation, non-optimistic command handling, and offline-availability safeguards.
-- Cloud polling cannot guarantee capture of very short (1–2 s) events if the cloud/device does not report intermediate states; local AC monitoring may be required for root-cause analysis.
-- Optional bypass/UPS/grid entities appear only if the Gendome cloud API exposes those keys.
+- Cloud polling cannot guarantee capture of very short (1–2 s) events if the cloud/device does not report intermediate states between polls; local AC monitoring may be required for root-cause analysis.
+- Optional bypass/UPS/grid/temperature/error entities appear only if the Gendome cloud API exposes those keys.
+- Running original and mod against the same account increases API polling load; consider increasing the update interval if needed.
 
 ## Supported entities
 
