@@ -10,6 +10,7 @@ from .const import (
     CONF_API_BASE_URL,
     CONF_ENVIRONMENT,
     DEFAULT_API_BASE_URL,
+    DOMAIN,
     ENVIRONMENT,
     PLATFORMS,
     REVOKE_URL,

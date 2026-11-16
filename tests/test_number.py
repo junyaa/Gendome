@@ -6,7 +6,10 @@ from unittest.mock import AsyncMock
 import pytest
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.gendome_mod_junya.const import PRODUCT_KEY_GO_1000, PRODUCT_KEY_GO_2000
+from custom_components.gendome_mod_junya.const import (
+    PRODUCT_KEY_GO_1000,
+    PRODUCT_KEY_GO_2000,
+)
 from custom_components.gendome_mod_junya.number import NUMBERS, GendomeNumber
 
 

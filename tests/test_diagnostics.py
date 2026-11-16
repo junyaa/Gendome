@@ -2,7 +2,9 @@
 
 from types import SimpleNamespace
 
-from custom_components.gendome_mod_junya.diagnostics import async_get_config_entry_diagnostics
+from custom_components.gendome_mod_junya.diagnostics import (
+    async_get_config_entry_diagnostics,
+)
 
 
 async def test_diagnostics_redact_account_and_error_details():
