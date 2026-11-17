@@ -33,14 +33,26 @@ same `device_id`):
 
 ```yaml
 type: custom:gendome-mod-junya-card
+title: Energy Console
+section: header
+# device_id: YOUR_DEVICE_ID
+```
+```yaml
+type: custom:gendome-mod-junya-card
 title: Battery
-section: battery
+section: ring
 # device_id: YOUR_DEVICE_ID
 ```
 ```yaml
 type: custom:gendome-mod-junya-card
 title: Power
 section: metrics
+# device_id: YOUR_DEVICE_ID
+```
+```yaml
+type: custom:gendome-mod-junya-card
+title: Grid / In
+section: metric_in
 # device_id: YOUR_DEVICE_ID
 ```
 ```yaml
@@ -56,7 +68,9 @@ section: status
 # device_id: YOUR_DEVICE_ID
 ```
 
-Supported `section` values: `all` (default), `battery`, `metrics`, `flow`, `status`.
+Supported `section` values: `all` (default, full card), `header`, `ring`,
+`metrics` (all four), `metric_in`, `metric_out`, `metric_dc`, `metric_temp`,
+`flow`, `status`. (`battery` is accepted as an alias for `ring`.)
 
 ## Built-in cards example (YAML)
 
