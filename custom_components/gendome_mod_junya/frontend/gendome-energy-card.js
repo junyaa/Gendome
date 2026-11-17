@@ -1,6 +1,6 @@
 const CARD_TAG = "gendome-mod-junya-card";
 const EDITOR_TAG = "gendome-mod-junya-card-editor";
-const CARD_VERSION = "2026-11-17.4";
+const CARD_VERSION = "2026-11-17.7";
 
 const mdi = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
 const ICONS = {
@@ -46,7 +46,23 @@ function findDevice(hass, cfg) {
 }
 
 const SECTION_ALL = "all";
-const SECTION_NAMES = ["all", "battery", "flow", "metrics", "status"];
+const SECTION_NAMES = [
+  "all",
+  "header",
+  "ring",
+  "battery",
+  "metrics",
+  "metric_in",
+  "metric_out",
+  "metric_dc",
+  "metric_temp",
+  "flow",
+  "status",
+];
+const normSection = (s) => {
+  if (s === "battery") return "ring";
+  return SECTION_NAMES.includes(s) ? s : SECTION_ALL;
+};
 
 class GendomeModJunyaCard extends HTMLElement {
   static getConfigElement() { return document.createElement(EDITOR_TAG); }
@@ -54,18 +70,20 @@ class GendomeModJunyaCard extends HTMLElement {
 
   setConfig(config) {
     if (!config) throw new Error("Invalid configuration");
-    const section = SECTION_NAMES.includes(config.section) ? config.section : SECTION_ALL;
+    const section = normSection(config.section);
     this._config = { title: "Energy Console", ...config, section, entities: config.entities || {} };
     this._rendered = false;
   }
   set hass(hass) { this._hass = hass; if (!this._rendered) this.render(); this.update(); }
   getCardSize() {
-    const s = this._config?.section || SECTION_ALL;
-    if (s === "battery") return 4;
+    const s = normSection(this._config?.section);
+    if (s === "all") return 7;
+    if (s === "ring") return 4;
     if (s === "metrics") return 3;
     if (s === "flow") return 3;
     if (s === "status") return 2;
-    return 7;
+    if (s === "header") return 2;
+    return 2;
   }
 
   render() {
@@ -123,6 +141,11 @@ class GendomeModJunyaCard extends HTMLElement {
         .arrow.flow { color:#38bdf8; opacity:1; animation: arrow-flow 1.1s linear infinite; text-shadow:0 0 8px rgba(56,189,248,.45); }
         .arrow.flow.out { color:#f59e0b; text-shadow:0 0 8px rgba(245,158,11,.45); }
         .ring.charging .fg { filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent,#22c55e) 60%, transparent)); }
+        .chips { display:flex; flex-wrap:wrap; gap:7px; }
+        .chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; font-size:.72rem;
+          background:color-mix(in srgb,var(--primary-text-color) 6%,transparent); border:1px solid color-mix(in srgb,var(--primary-text-color) 8%,transparent); color:var(--secondary-text-color); }
+        .chip.on { color:var(--primary-text-color); }
+        .dot { width:7px; height:7px; border-radius:50%; background:#64748b; }
         .chip.on .dot { background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,.18); animation: dot-pulse 2s ease-out infinite; }
         .chip.warn.on .dot { background:#f59e0b; box-shadow:0 0 0 3px rgba(245,158,11,.18); animation: dot-pulse 2s ease-out infinite; }
         @keyframes ico-pulse { 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.12); opacity:.85; } }
@@ -174,8 +197,8 @@ class GendomeModJunyaCard extends HTMLElement {
     const outAct = (num(outP) || 0) > 0 || onOff(acOut) || onOff(dcOut);
     const chargingOn = onOff(charging);
     const dischargingOn = onOff(dischg);
-    const flowIn = chargingOn || (inAct && (num(inP) || 0) > 5);
-    const flowOut = dischargingOn || (outAct && (num(outP) || 0) > 0);
+    const flowIn = chargingOn;
+    const flowOut = dischargingOn;
     const chips = [
       { l: "Grid", on: onOff(grid), v: avail(grid) },
       { l: "Charging", on: onOff(charging), v: avail(charging) },
@@ -206,57 +229,76 @@ class GendomeModJunyaCard extends HTMLElement {
       return;
     }
 
-    const section = c.section || SECTION_ALL;
-    const show = (name) => section === SECTION_ALL || section === name;
+    const section = normSection(c.section);
     const solo = section !== SECTION_ALL;
     let html = "";
 
-    if (show("battery")) {
-      const ring = `<div class="ring-wrap" style="--accent:${d.accent}">
+    const ring = `<div class="ring-wrap" style="--accent:${d.accent}">
           <svg class="ring${d.chargingOn ? " charging" : ""}" viewBox="0 0 120 120" role="img" aria-label="Battery ${d.pct}%">
             <circle class="bg" cx="60" cy="60" r="${d.r}"></circle>
             <circle class="fg" cx="60" cy="60" r="${d.r}" stroke-dasharray="${d.circ.toFixed(2)}" stroke-dashoffset="${d.off.toFixed(2)}"></circle>
           </svg>
           <div class="ring-label"><div class="ring-val">${d.socV==null?"—":Math.round(d.pct)+"%"}</div><div class="ring-cap">Battery${d.chargingOn ? " · Charging" : ""}</div></div>
         </div>`;
-      if (section === "battery") {
-        html += `<div class="sec"><div class="hero solo">${ring}</div></div>`;
-      } else {
-        html += `<div class="sec"><div class="hero">${ring}<div class="metrics">
-            <div class="metric"><div class="m-label">${mdi(ICONS.grid)} Grid / In</div><div class="m-val">${fmt(d.inP)}</div></div>
-            <div class="metric"><div class="m-label">${mdi(ICONS.home)} Output</div><div class="m-val">${fmt(d.outP)}</div></div>
-            <div class="metric"><div class="m-label">${mdi(ICONS.plug)} DC out</div><div class="m-val">${fmt(d.dcP)}</div></div>
-            <div class="metric"><div class="m-label">${mdi(ICONS.temp)} Temp</div><div class="m-val">${fmt(d.temp)}</div></div>
-          </div></div></div>`;
-      }
-    }
+    const metric = (icon, label, val) => `<div class="metric"><div class="m-label">${mdi(icon)} ${label}</div><div class="m-val">${fmt(val)}</div></div>`;
+    const metricsAll = `<div class="metrics">
+        ${metric(ICONS.grid, "Grid / In", d.inP)}
+        ${metric(ICONS.home, "Output", d.outP)}
+        ${metric(ICONS.plug, "DC out", d.dcP)}
+        ${metric(ICONS.temp, "Temp", d.temp)}
+      </div>`;
 
-    if (show("metrics") && section !== SECTION_ALL) {
-      html += `<div class="sec"><div class="metrics">
-        <div class="metric"><div class="m-label">${mdi(ICONS.grid)} Grid / In</div><div class="m-val">${fmt(d.inP)}</div></div>
-        <div class="metric"><div class="m-label">${mdi(ICONS.home)} Output</div><div class="m-val">${fmt(d.outP)}</div></div>
-        <div class="metric"><div class="m-label">${mdi(ICONS.plug)} DC out</div><div class="m-val">${fmt(d.dcP)}</div></div>
-        <div class="metric"><div class="m-label">${mdi(ICONS.temp)} Temp</div><div class="m-val">${fmt(d.temp)}</div></div>
-      </div></div>`;
-    }
-
-    if (show("flow")) {
-      const inCls = ["node", d.inAct ? "active in" : "", d.flowIn ? "flow-in" : "", d.chargingOn ? "charging" : ""].filter(Boolean).join(" ");
+    if (section === SECTION_ALL) {
+      html += `<div class="sec"><div class="hero">${ring}${metricsAll}</div></div>`;
+      const inCls = ["node", d.inAct ? "active in" : "", d.flowIn ? "flow-in charging" : ""].filter(Boolean).join(" ");
       const midCls = ["node", (onOff(d.charging) || onOff(d.dischg) || avail(d.soc)) ? "active mid" : "", d.chargingOn ? "charging" : "", d.dischargingOn ? "discharging" : ""].filter(Boolean).join(" ");
-      const outCls = ["node", "out", d.outAct ? "active out" : "", d.flowOut ? "flow-out" : "", d.dischargingOn ? "discharging" : ""].filter(Boolean).join(" ");
+      const outCls = ["node", "out", d.outAct ? "active out" : "", d.flowOut ? "flow-out discharging" : ""].filter(Boolean).join(" ");
       const arrIn = `arrow${d.flowIn ? " flow" : ""}`;
       const arrOut = `arrow${d.flowOut ? " flow out" : ""}`;
-      html += `<div class="sec"><div class="flow${d.chargingOn ? " charging" : ""}${d.dischargingOn ? " discharging" : ""}">
+      html += `<div class="sec"><div class="flow${d.flowIn ? " charging" : ""}${d.flowOut ? " discharging" : ""}">
         <div class="${inCls}"><div class="ico">${mdi(ICONS.grid)}</div><div class="nlab">Input</div><div class="nval">${fmt(d.inP)}</div></div>
         <div class="${arrIn}">→</div>
         <div class="${midCls}"><div class="ico">${mdi(ICONS.battery)}</div><div class="nlab">Station</div><div class="nval">${d.socV==null?"—":Math.round(d.pct)+"%"}</div></div>
         <div class="${arrOut}">→</div>
         <div class="${outCls}"><div class="ico">${mdi(ICONS.home)}</div><div class="nlab">Load</div><div class="nval">${fmt(d.outP)}</div></div>
       </div></div>`;
+      html += d.chips.length ? `<div class="sec"><div class="chips">${d.chips.map(c=>`<span class="chip ${c.on?"on":""} ${c.warn&&c.on?"warn":""}"><span class="dot"></span>${c.l}</span>`).join("")}</div></div>` : "";
+      this.shadowRoot.querySelector(".body").innerHTML = html;
+      return;
     }
 
-    if (show("status")) {
-      html += d.chips.length ? `<div class="sec"><div class="chips">${d.chips.map(c=>`<span class="chip ${c.on?"on":""} ${c.warn&&c.on?"warn":""}"><span class="dot"></span>${c.l}</span>`).join("")}</div></div>` : (solo ? `<div class="empty">No status entities available.</div>` : "");
+    if (section === "header") {
+      this.shadowRoot.querySelector(".body").innerHTML = "";
+      return;
+    }
+
+    if (section === "ring") {
+      html += `<div class="sec"><div class="hero solo">${ring}</div></div>`;
+    } else if (section === "metrics") {
+      html += `<div class="sec">${metricsAll}</div>`;
+    } else if (section === "metric_in") {
+      html += `<div class="sec"><div class="metrics">${metric(ICONS.grid, "Grid / In", d.inP)}</div></div>`;
+    } else if (section === "metric_out") {
+      html += `<div class="sec"><div class="metrics">${metric(ICONS.home, "Output", d.outP)}</div></div>`;
+    } else if (section === "metric_dc") {
+      html += `<div class="sec"><div class="metrics">${metric(ICONS.plug, "DC out", d.dcP)}</div></div>`;
+    } else if (section === "metric_temp") {
+      html += `<div class="sec"><div class="metrics">${metric(ICONS.temp, "Temp", d.temp)}</div></div>`;
+    } else if (section === "flow") {
+      const inCls = ["node", d.inAct ? "active in" : "", d.flowIn ? "flow-in charging" : ""].filter(Boolean).join(" ");
+      const midCls = ["node", (onOff(d.charging) || onOff(d.dischg) || avail(d.soc)) ? "active mid" : "", d.chargingOn ? "charging" : "", d.dischargingOn ? "discharging" : ""].filter(Boolean).join(" ");
+      const outCls = ["node", "out", d.outAct ? "active out" : "", d.flowOut ? "flow-out discharging" : ""].filter(Boolean).join(" ");
+      const arrIn = `arrow${d.flowIn ? " flow" : ""}`;
+      const arrOut = `arrow${d.flowOut ? " flow out" : ""}`;
+      html += `<div class="sec"><div class="flow${d.flowIn ? " charging" : ""}${d.flowOut ? " discharging" : ""}">
+        <div class="${inCls}"><div class="ico">${mdi(ICONS.grid)}</div><div class="nlab">Input</div><div class="nval">${fmt(d.inP)}</div></div>
+        <div class="${arrIn}">→</div>
+        <div class="${midCls}"><div class="ico">${mdi(ICONS.battery)}</div><div class="nlab">Station</div><div class="nval">${d.socV==null?"—":Math.round(d.pct)+"%"}</div></div>
+        <div class="${arrOut}">→</div>
+        <div class="${outCls}"><div class="ico">${mdi(ICONS.home)}</div><div class="nlab">Load</div><div class="nval">${fmt(d.outP)}</div></div>
+      </div></div>`;
+    } else if (section === "status") {
+      html += d.chips.length ? `<div class="sec"><div class="chips">${d.chips.map(c=>`<span class="chip ${c.on?"on":""} ${c.warn&&c.on?"warn":""}"><span class="dot"></span>${c.l}</span>`).join("")}</div></div>` : `<div class="empty">No status entities available.</div>`;
     }
 
     this.shadowRoot.querySelector(".body").innerHTML = html || `<div class="empty">No data for selected section.</div>`;
@@ -281,8 +323,13 @@ class GendomeModJunyaCardEditor extends HTMLElement {
         <div><label>Section</label>
           <select id="section">
             <option value="all">All (combined)</option>
-            <option value="battery">Battery</option>
-            <option value="metrics">Metrics</option>
+            <option value="header">Header</option>
+            <option value="ring">Battery ring</option>
+            <option value="metrics">Metrics (all)</option>
+            <option value="metric_in">Metric: Grid / In</option>
+            <option value="metric_out">Metric: Output</option>
+            <option value="metric_dc">Metric: DC out</option>
+            <option value="metric_temp">Metric: Temp</option>
             <option value="flow">Power flow</option>
             <option value="status">Status chips</option>
           </select>
@@ -306,7 +353,7 @@ class GendomeModJunyaCardEditor extends HTMLElement {
     ["title","device_id","section","battery_soc","ac_input_power","ac_output_power","online"].forEach(id=>q(id).addEventListener("change", emit));
     const cfg = this._config||{}, e = cfg.entities||{};
     q("title").value = cfg.title || "Energy Console";
-    q("section").value = SECTION_NAMES.includes(cfg.section) ? cfg.section : "all";
+    q("section").value = normSection(cfg.section);
     q("device_id").value = cfg.device_id || "";
     q("battery_soc").value = e.battery_soc||"";
     q("ac_input_power").value = e.ac_input_power||"";
@@ -324,7 +371,7 @@ if (!window.customCards.some((c) => c.type === CARD_TAG)) {
   window.customCards.push({
     type: CARD_TAG,
     name: "Gendome (Mod Junya) Energy Console",
-    description: "Visual power-flow, battery ring, and status card for Gendome (Mod Junya). Supports sections (battery, metrics, flow, status).",
+    description: "Visual power-flow, battery ring, and status card for Gendome (Mod Junya). Supports full and per-element sections.",
     preview: true,
   });
 }
