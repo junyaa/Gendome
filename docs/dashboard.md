@@ -19,7 +19,7 @@ After deploying and restarting Home Assistant, add it as a Lovelace resource:
 Do not add the resource until the JS URL loads successfully in your browser;
 a broken resource can prevent dashboards from loading.
 
-Example:
+Example (combined):
 
 ```yaml
 type: custom:gendome-mod-junya-card
@@ -27,6 +27,36 @@ title: Energy Console
 # Optional: device_id auto-detects entities for a Gendome (Mod Junya) device
 # device_id: YOUR_DEVICE_ID
 ```
+
+Split into separate cards/sections (add one card per dashboard section and use the
+same `device_id`):
+
+```yaml
+type: custom:gendome-mod-junya-card
+title: Battery
+section: battery
+# device_id: YOUR_DEVICE_ID
+```
+```yaml
+type: custom:gendome-mod-junya-card
+title: Power
+section: metrics
+# device_id: YOUR_DEVICE_ID
+```
+```yaml
+type: custom:gendome-mod-junya-card
+title: Flow
+section: flow
+# device_id: YOUR_DEVICE_ID
+```
+```yaml
+type: custom:gendome-mod-junya-card
+title: Status
+section: status
+# device_id: YOUR_DEVICE_ID
+```
+
+Supported `section` values: `all` (default), `battery`, `metrics`, `flow`, `status`.
 
 ## Built-in cards example (YAML)
 
