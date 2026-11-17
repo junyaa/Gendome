@@ -17,6 +17,7 @@ Compared to upstream
 ### Identity and coexistence
 - Separate integration domain/folder: `gendome_mod_junya` / **Gendome (Mod Junya)** (does not replace or migrate the original `gendome` integration).
 - Fork metadata, docs, and mod branding updated; manifest/loggers/version aligned to this mod.
+- Entity display names include a `(Mod)` suffix in strings/translations to help distinguish mod entities from the original integration.
 
 ### Added
 - **Options flow:** configurable polling interval (10–300 s, default 60 s) and optional transient state event logging.
@@ -26,14 +27,27 @@ Compared to upstream
 - **Diagnostic sensors (when available):** firmware version, Wi-Fi version, MCU version, last update timestamp, error code.
 - **Optional sensors (when available):** battery temperature, device temperature.
 - **Scheduled charging:** entity is created only when schedule data is available and exposes cached schedule attributes.
-- **Dashboard example:** [`docs/dashboard.md`](docs/dashboard.md) with a ready-to-adapt Lovelace layout for energy/power/status views.
+- **Custom Lovelace card:** `custom:gendome-mod-junya-card` (“Gendome (Mod Junya) Energy Console”) served by the integration at `/gendome_mod_junya/gendome-energy-card.js`.
+  - Battery SOC ring, input/station/output power flow, key metrics, and status chips.
+  - Device/entity auto-detection and basic visual editor.
+  - Configurable sections for dashboard layouts: `all` (default), `battery`, `metrics`, `flow`, `status`.
+  - Charging/discharging flow and icon animations with `prefers-reduced-motion` support.
+  - Visible mod markers in the card UI (“Mod Junya” badge and domain footer).
+- **Dashboard docs:** [`docs/dashboard.md`](docs/dashboard.md) with custom-card setup (manual Lovelace resource, cache-bust guidance) and built-in card examples.
 
 ### Changed / improved
+- **Command cooldown:** per-device cooldown before sending control commands to reduce cloud “command cooling down” errors on rapid toggles (applies to switch, scheduled charging, and number controls) with a localized cooldown message.
 - **UI/graph metadata:** remaining time uses duration device class (numeric minutes) with localized display text in attributes; online sensor uses connectivity device class; power/battery/temperature sensors use measurement state and display precision where appropriate for history/statistics.
 - **Icons:** expanded and state/range-aware icon mappings (`icons.json`) for battery level, connectivity/charging/discharging states, input/output/bypass/UPS/grid, and controls.
 - **Entity categories/classes:** config and diagnostic categories applied where relevant; switch device classes refined.
 - **Wind input power:** disabled by default to reduce clutter on devices without wind input.
+- **Frontend registration:** integration registers the custom card static path (`http` dependency) for manual Lovelace resource usage.
 - **Maintenance:** encoding/mojibake cleanup in modules, docs, translations, and tests; packaging/CI fixes for hassfest/HACS/ruff/pytest compatibility.
+
+### Fixed
+- `last_update` sensor: parse string timestamp values and normalize naive datetimes to UTC to avoid timezone-related state errors.
+- Skip creating optional sensors when the API reports missing, empty, or unavailable initial values.
+- Test mocks updated for command cooldown coordinator methods.
 
 ### Not changed (vs upstream behavior)
 - **No new device write commands.** Existing controls keep validation, non-optimistic command handling, and offline-availability safeguards.
@@ -43,6 +57,7 @@ Compared to upstream
 - Cloud polling cannot guarantee capture of very short (1–2 s) events if the cloud/device does not report intermediate states between polls; local AC monitoring may be required for root-cause analysis.
 - Optional bypass/UPS/grid/temperature/error entities appear only if the Gendome cloud API exposes those keys.
 - Running original and mod against the same account increases API polling load; consider increasing the update interval if needed.
+- The custom Lovelace card is loaded as a frontend resource: add/update it only after the JS URL loads successfully (a broken/cached resource can affect dashboard loading). Manual resource registration and cache-bust (`?v=...`) may be required after updates.
 
 ## Supported entities
 
@@ -59,17 +74,18 @@ Compared to upstream
 
 Entities use `mac + entity_key` as their stable unique ID. Controls are not
 optimistic: the integration waits for the Java OpenAPI command result and then
-refreshes the coordinated device state.
+refreshes the coordinated device state. A short per-device cooldown is applied
+before sending commands to reduce rapid-toggle cloud errors.
 
 ## Automatic synchronization
 
-Device data syncs automatically about every **60 seconds**.
+Device data syncs automatically (default **60 seconds**, configurable 10–300 s).
 No refresh automation is needed.
 
 ## Connecting your account
 
-1. Download **Gendome** in HACS, then restart Home Assistant service.
-2. Open **Settings → Devices & services → Add integration → Gendome**.
+1. Download **Gendome (Mod Junya)** in HACS (or install manually), then restart Home Assistant.
+2. Open **Settings → Devices & services → Add integration → Gendome (Mod Junya)**.
 3. Home Assistant opens the Gendome authorization website in the browser.
 4. Sign in with your Gendome App account, review the requested permissions, and
    select **Allow**.
@@ -79,7 +95,7 @@ No refresh automation is needed.
 ## User prerequisites
 
 - Home Assistant 2024.8 or newer;
-- HACS installed and working;
+- HACS installed and working (for HACS install);
 - a Gendome App account with at least one supported device already bound;
 - internet access from the browser and Home Assistant server to Gendome cloud
   services.
@@ -88,6 +104,23 @@ To use the **Scheduled charging** switch, first create a charging plan in the
 Gendome app. The integration can read and enable or disable an existing plan,
 but cannot create or edit the plan in Home Assistant. Cached schedule details
 (start/end, target, mode, etc.) are exposed as switch attributes when provided.
+
+## Custom Lovelace card
+
+The integration serves a custom card: `custom:gendome-mod-junya-card`.
+
+1. Deploy `custom_components/gendome_mod_junya/` (including `frontend/`) and restart Home Assistant.
+2. Verify `http://<HA_HOST>:8123/gendome_mod_junya/gendome-energy-card.js` loads.
+3. Add a Lovelace resource: URL `/gendome_mod_junya/gendome-energy-card.js` (or with `?v=...` after updates), type **JavaScript module**.
+4. Add a manual card:
+   ```yaml
+   type: custom:gendome-mod-junya-card
+   title: Energy Console
+   # section: all|battery|metrics|flow|status
+   # device_id: YOUR_DEVICE_ID
+   ```
+
+See [`docs/dashboard.md`](docs/dashboard.md) for section examples and a built-in cards layout.
 
 ## Production backend prerequisites
 
@@ -112,14 +145,13 @@ client secret because every HACS installation can inspect the source code.
 Add the repository to HACS and download the integration:
 
 1. In HACS, open **Integrations**, then **Custom repositories**.
-2. Add your fork URL (or `https://github.com/gendome/home-assistant.git` for
-   upstream) with category **Integration**.
-3. Find and download **Gendome**, then restart Home Assistant service.
-4. Open **Settings → Devices & services → Add integration → Gendome** and
+2. Add this fork URL with category **Integration** (or add upstream `https://github.com/gendome/home-assistant.git` for the original).
+3. Find and download **Gendome (Mod Junya)**, then restart Home Assistant.
+4. Open **Settings → Devices & services → Add integration → Gendome (Mod Junya)** and
    complete the browser authorization flow.
 
-If Gendome is available in the default HACS catalog, search for **Gendome**
-directly and download it without adding a custom repository.
+For a manual installation, copy `custom_components/gendome_mod_junya` into the Home
+Assistant `config/custom_components` directory and restart Home Assistant.
 
 Adding the integration immediately opens the Gendome website. Sign in, review
 the requested access, and select **Allow**. Gendome then returns to Home
@@ -128,16 +160,11 @@ Users do not create OAuth credentials and do not see an implementation picker.
 The Gendome password is entered only on the Gendome-owned authorization page;
 it is not entered into or stored by Home Assistant.
 
-This HACS flow uses Gendome's built-in public OAuth client with Authorization
-Code + PKCE; it does not depend on Nabu Casa Cloud Account Linking.
-
-For a manual installation, copy `custom_components/gendome` into the Home
-Assistant `config/custom_components` directory and restart Home Assistant.
-
 ## Safety behavior
 
 - Device commands use a new idempotency key and poll `commandId` for a terminal
   result.
+- A short per-device cooldown is enforced before sending commands to avoid rapid-toggle cloud errors.
 - Offline devices are unavailable for control; the Online binary sensor remains
   available so it can report `off`.
 - Battery protection requires `0 ≤ lower SOC < upper SOC ≤ 100` both in Home
@@ -156,7 +183,7 @@ include integration options and (when enabled) a recent log of observed
 state/raw-key changes between cloud polls to help investigate brief
 transitions (e.g. short grid loss causing output flicker).
 
-Integration options (Settings → Devices & services → Gendome → Configure):
+Integration options (Settings → Devices & services → Gendome (Mod Junya) → Configure):
 - **Update interval (seconds)**: polling period (10–300, default 60). Shorter
   intervals may capture more transient changes but increase API load/rate-limit risk.
 - **Enable transient state event log**: keeps a small in-memory ring of recent
@@ -171,7 +198,7 @@ See [`docs/troubleshooting.md`](docs/troubleshooting.md) for common failures.
 
 ## Current limitations
 
-- The integration is distributed through HACS and is not bundled with Home
+- The integration is distributed through HACS/custom install and is not bundled with Home
   Assistant Core.
 - Full scheduled-charging rule editing is intentionally excluded; only an
   existing plan can be read and enabled/disabled.
@@ -183,6 +210,7 @@ See [`docs/troubleshooting.md`](docs/troubleshooting.md) for common failures.
   GO1000 and GO2000, it follows the mode reported by the device when available.
 - Product capabilities are inferred from semantic state keys until the backend
   adds an explicit capability object.
+- Cloud polling and frontend dashboards cannot guarantee capture/display of very short transient events not reported between polls.
 
 ## License
 
