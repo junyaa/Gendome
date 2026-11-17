@@ -1,6 +1,6 @@
 const CARD_TAG = "gendome-mod-junya-card";
 const EDITOR_TAG = "gendome-mod-junya-card-editor";
-const CARD_VERSION = "2026-11-17.4";
+const CARD_VERSION = "2026-11-17.5";
 
 const mdi = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
 const ICONS = {
@@ -174,8 +174,8 @@ class GendomeModJunyaCard extends HTMLElement {
     const outAct = (num(outP) || 0) > 0 || onOff(acOut) || onOff(dcOut);
     const chargingOn = onOff(charging);
     const dischargingOn = onOff(dischg);
-    const flowIn = chargingOn || (inAct && (num(inP) || 0) > 5);
-    const flowOut = dischargingOn || (outAct && (num(outP) || 0) > 0);
+    const flowIn = chargingOn;
+    const flowOut = dischargingOn;
     const chips = [
       { l: "Grid", on: onOff(grid), v: avail(grid) },
       { l: "Charging", on: onOff(charging), v: avail(charging) },
@@ -241,12 +241,12 @@ class GendomeModJunyaCard extends HTMLElement {
     }
 
     if (show("flow")) {
-      const inCls = ["node", d.inAct ? "active in" : "", d.flowIn ? "flow-in" : "", d.chargingOn ? "charging" : ""].filter(Boolean).join(" ");
+      const inCls = ["node", d.inAct ? "active in" : "", d.flowIn ? "flow-in charging" : ""].filter(Boolean).join(" ");
       const midCls = ["node", (onOff(d.charging) || onOff(d.dischg) || avail(d.soc)) ? "active mid" : "", d.chargingOn ? "charging" : "", d.dischargingOn ? "discharging" : ""].filter(Boolean).join(" ");
-      const outCls = ["node", "out", d.outAct ? "active out" : "", d.flowOut ? "flow-out" : "", d.dischargingOn ? "discharging" : ""].filter(Boolean).join(" ");
+      const outCls = ["node", "out", d.outAct ? "active out" : "", d.flowOut ? "flow-out discharging" : ""].filter(Boolean).join(" ");
       const arrIn = `arrow${d.flowIn ? " flow" : ""}`;
       const arrOut = `arrow${d.flowOut ? " flow out" : ""}`;
-      html += `<div class="sec"><div class="flow${d.chargingOn ? " charging" : ""}${d.dischargingOn ? " discharging" : ""}">
+      html += `<div class="sec"><div class="flow${d.flowIn ? " charging" : ""}${d.flowOut ? " discharging" : ""}">
         <div class="${inCls}"><div class="ico">${mdi(ICONS.grid)}</div><div class="nlab">Input</div><div class="nval">${fmt(d.inP)}</div></div>
         <div class="${arrIn}">→</div>
         <div class="${midCls}"><div class="ico">${mdi(ICONS.battery)}</div><div class="nlab">Station</div><div class="nval">${d.socV==null?"—":Math.round(d.pct)+"%"}</div></div>
